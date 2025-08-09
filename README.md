@@ -1,4 +1,4 @@
-# GPT-2 Recipe Generator (Epicurious Fine-Tuning)
+# GPT-2 Fine-Tuning for Recipe Generator
 
 A compact workflow to fine-tune GPT-2 on the **Epicurious** recipes corpus and generate ingredient-aware recipe text.  
 Includes data loading, tokenization, block-wise language modeling, TensorFlow/Keras training, and text generation with the fine-tuned model.
