@@ -6,19 +6,7 @@ Includes data loading, tokenization, block-wise language modeling, TensorFlow/Ke
 **Tools and Frameworks:**  
 - Python  
 - TensorFlow / Keras (TF models)  
-- 🤗 Transformers + Datasets  
-
----
-
-## Motivation
-
-As with the example in the RNNs class, we’d like to build a **Transformer** that generates recipes. Rather than use a small, bespoke dataset, we’ll use the **Epicurious** dataset:
-
-- Over **20,000** recipes (still on the small side for LMs)  
-- Includes ratings, nutrition, and rich metadata  
-- Source: https://www.kaggle.com/hugodarwood/epirecipes
-
-We’ll start from **GPT-2 (124M parameters)** and **fine-tune** it on Epicurious. Because we use the **TensorFlow** implementation, the model is compiled and trained via standard **Keras** commands. The code shown here is simplified for slides; see the scripts for full details.
+- Hugging Face Transformers + Datasets  
 
 ---
 
@@ -33,7 +21,6 @@ We’ll start from **GPT-2 (124M parameters)** and **fine-tune** it on Epicuriou
   - Concatenate tokenized text then split into fixed-length **blocks** (`block_size`).
   - Set `labels = input_ids` for **causal language modeling** (next-token prediction).
 
-> Very little data modification is required. Optionally, you can add explicit separators between **ingredients** and **directions** to improve structure.
 
 ---
 
@@ -45,11 +32,6 @@ We’ll start from **GPT-2 (124M parameters)** and **fine-tune** it on Epicuriou
 - **Objective**: standard causal LM loss (internally computed by the model).  
 - **Training loop**: `model.compile(optimizer="adam")` → `model.fit(...)` with validation.  
 - **Checkpoints**: `model.save_pretrained("output")` for reuse in inference.
-
-**Practical notes:**
-- Training took **~1 day on a single GPU** in our runs.  
-- GPT-2 **124M params** vs **~3.6M words** in training → expect **overfitting** unless regularized or augmented.
-
 ---
 
 ## Inference (Generation)
@@ -63,12 +45,11 @@ Use the fine-tuned checkpoint to generate recipes from an ingredient prompt:
 
 ---
 
-## Results: What Works, What Doesn’t
+## Results:
 
-**Improvements over the RNN baseline:**
 - Ingredients in the list are often **referenced in directions** and roughly in order of appearance.  
-- **Titles** align better with ingredients.  
-- **Grammar** and fluency are noticeably improved.
+- **Titles** align with ingredients.  
+- **Grammar** and fluency are noticeably good.
 
 **Limitations / Observations:**
 - Signs of **memorization** (copied titles/ingredient lists) → classic **overfitting**.  
@@ -100,21 +81,10 @@ Modern models can exceed single-GPU memory. Two practical techniques:
 
 ## Repository Layout (Scripts)
 
-- **`Train_Recipes.py`** — Fine-tunes GPT-2 on Epicurious using TF/Keras + 🤗.  
+- **`Train_Recipes.py`** — Fine-tunes GPT-2 on Epicurious using TF/Keras + Hugging Face 
   - Loads tokenizer/config, tokenizes and groups text, builds `tf.data` pipelines, trains, and saves to `output/`.  
 - **`Generate_Recipes.py`** — Loads the checkpoint from `output/` and generates recipe text from a prompt.
 
 ---
 
-## Repro Tips
 
-- Ensure splits exist (or adapt the loader to your file names).  
-- Verify GPU memory growth is enabled (TensorFlow) to avoid OOM.  
-- Start with small `block_size` / `batch_size` to sanity-check the pipeline, then scale up.  
-- Keep a validation set for early signals of over/underfitting.
-
----
-
-## Final Thoughts
-
-Overall, the GPT-2 recipe generator **outperforms the RNN** baseline in structure and fluency but still benefits from **more data**, **regularization**, and **smarter decoding**. With **(Q)LoRA**, you can iterate faster and explore larger backbones without needing massive compute.
