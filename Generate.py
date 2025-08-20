@@ -67,8 +67,3 @@ print(tokenizer.decode(generated[0]))
 
 
 
-
-
-
-
-ChatGPT can make mistakes. Check important info. See Cookie Preferences.
